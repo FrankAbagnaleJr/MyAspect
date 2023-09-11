@@ -3,14 +3,12 @@ package com.kyrie.annotation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.lang.reflect.Method;
@@ -29,30 +27,32 @@ public class SystemServiceLogAspect {
     /**
      * 把方法执行后执行记录日志
      *
-     * @param point
+     * @param proceedingJoinPoint ProceedingJoinPoint只能在@Around环绕中使用
      * @throws Throwable
      */
-    @Before("serviceAspect()")
-    public void doBefore(ProceedingJoinPoint point) throws Throwable {
-        //执行逻辑,从point中取
+    @Around("serviceAspect()")
+    public void doBefore(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        logger.info("=========================================用户操作日志-环绕通知开始执行......=========================================");
 
+
+        //执行逻辑,从point中取
         //得到调用的方法名
-        String name = point.getSignature().getName();
+        String name = proceedingJoinPoint.getSignature().getName();
 
         //得到方法的返回值
-        Object proceed = point.proceed();
+        Object proceed = proceedingJoinPoint.proceed();
         String methodResult = (String) proceed;
 
         //得到方法的参数
         String params = "";
-        if (point.getArgs() != null && point.getArgs().length > 0) {
-            if (point.getArgs()[0] != null) {
-                params = point.getArgs()[0].toString();
+        if (proceedingJoinPoint.getArgs() != null && proceedingJoinPoint.getArgs().length > 0) {
+            if (proceedingJoinPoint.getArgs()[0] != null) {
+                params = proceedingJoinPoint.getArgs()[0].toString();
             }
         }
 
         //得到签名 强转成方法签名
-        MethodSignature methodSignature = (MethodSignature) point.getSignature();
+        MethodSignature methodSignature = (MethodSignature) proceedingJoinPoint.getSignature();
         //得到签名 强转成字段签名
         //FieldSignature signature = (FieldSignature) point.getSignature();
 
@@ -67,10 +67,12 @@ public class SystemServiceLogAspect {
             //记录日志
             logger.info("当前操作：" + value + "，调用了" + name + "方法，方法参数是：" + params + ",返回值是：" + methodResult);   //当前操作：过id查询用户，调用了getById方法，返回值是 User(id=1,name=张三)
         }
+        logger.info("=========================================用户操作日志-环绕通知结束执行......=========================================");
     }
 
-    @Around("serviceAspect()")
+    @Before("serviceAspect()")
     public void joinpointDetailsTest(JoinPoint joinPoint) {
+        logger.info("=========================================用户操作日志-前置通知开始执行......=========================================");
         try {
             //得到类对象
             Class<?> clazz = joinPoint.getTarget().getClass();
@@ -81,28 +83,38 @@ public class SystemServiceLogAspect {
             //根据类对象、方法名字、参数类型得到方法
             Method method = clazz.getMethod(methodName, parameterTypes);
             //得到方法上的PostMapping对象
-            PostMapping postMapping = method.getAnnotation(PostMapping.class);
-            //从PostMapping中得到路径
+            GetMapping postMapping = method.getAnnotation(GetMapping.class);
+            //从GetMapping中得到路径
             String[] paths = postMapping.value();
+
+            System.out.println("类对象:" + clazz.toString() + ",方法名:" + methodName + ",路径：" + paths);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
+        logger.info("=========================================用户操作日志-前置通知结束执行......=========================================");
     }
 
-    @Around("serviceAspect()")
+        @After("serviceAspect()")
     public void joinpointMethodTest(JoinPoint joinPoint) {
+        logger.info("=========================================用户操作日志-后置通知开始执行......=========================================");
 
         //得到封装了部署信息的对象，在该对象中可获取目标方法名，所属类的Class等信息
         Signature signature = joinPoint.getSignature();
+        System.out.println(signature.toString());
 
         //得到传入目标方法参数对象
         Object[] args = joinPoint.getArgs();
+        System.out.println(args.toString());
 
         //得到被代理的对象
         Object target = joinPoint.getTarget();
+        System.out.println(target.toString());
 
         //得到代理对象
         Object aThis = joinPoint.getThis();
+        System.out.println(aThis.toString());
+
+        logger.info("=========================================用户操作日志-后置通知结束执行......=========================================");
 
     }
 }

@@ -1,6 +1,5 @@
 package com.kyrie.annotation;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -8,14 +7,10 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
 import java.lang.reflect.Method;
-import java.util.Date;
 
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class SystemControllerLogAspect {
     //注入Service用于把日志保存数据库
 
@@ -42,6 +37,8 @@ public class SystemControllerLogAspect {
     @Before("controllerAspect()")
     public void doBefore(JoinPoint joinPoint) {
         //执行逻辑
+/**
+
 
         //加入该注解的方法应该用public修饰
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
@@ -82,7 +79,9 @@ public class SystemControllerLogAspect {
             logger.error("==前置通知异常==");
             logger.error("异常信息:{}", e.getMessage());
         }
+ */
     }
+
 
     public static String getControllerMethodDescription(JoinPoint joinPoint) throws Exception {
         String targetName = joinPoint.getTarget().getClass().getName();
