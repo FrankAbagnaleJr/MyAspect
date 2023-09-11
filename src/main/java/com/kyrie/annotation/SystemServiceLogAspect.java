@@ -2,6 +2,7 @@ package com.kyrie.annotation;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -86,5 +87,22 @@ public class SystemServiceLogAspect {
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
+    }
+
+    @Around("serviceAspect()")
+    public void joinpointMethodTest(JoinPoint joinPoint) {
+
+        //得到封装了部署信息的对象，在该对象中可获取目标方法名，所属类的Class等信息
+        Signature signature = joinPoint.getSignature();
+
+        //得到传入目标方法参数对象
+        Object[] args = joinPoint.getArgs();
+
+        //得到被代理的对象
+        Object target = joinPoint.getTarget();
+
+        //得到代理对象
+        Object aThis = joinPoint.getThis();
+        
     }
 }
