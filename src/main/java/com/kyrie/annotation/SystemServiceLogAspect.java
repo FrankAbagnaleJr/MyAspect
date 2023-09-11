@@ -1,6 +1,8 @@
 package com.kyrie.annotation;
 
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
@@ -8,6 +10,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.lang.reflect.Method;
 
@@ -62,6 +65,26 @@ public class SystemServiceLogAspect {
             String value = annotation.value();
             //记录日志
             logger.info("当前操作：" + value + "，调用了" + name + "方法，方法参数是：" + params + ",返回值是：" + methodResult);   //当前操作：过id查询用户，调用了getById方法，返回值是 User(id=1,name=张三)
+        }
+    }
+
+    @Around("serviceAspect()")
+    public void joinpointDetailsTest(JoinPoint joinPoint) {
+        try {
+            //得到类对象
+            Class<?> clazz = joinPoint.getTarget().getClass();
+            //得到方法名
+            String methodName = joinPoint.getSignature().getName();
+            //得到参数类型的对象
+            Class<?>[] parameterTypes = ((MethodSignature) joinPoint.getSignature()).getMethod().getParameterTypes();
+            //根据类对象、方法名字、参数类型得到方法
+            Method method = clazz.getMethod(methodName, parameterTypes);
+            //得到方法上的PostMapping对象
+            PostMapping postMapping = method.getAnnotation(PostMapping.class);
+            //从PostMapping中得到路径
+            String[] paths = postMapping.value();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
         }
     }
 }
