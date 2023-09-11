@@ -21,7 +21,7 @@ public class SystemControllerLogAspect {
 
 
     //本地异常日志记录对象
-    private static final Logger logger = LoggerFactory.getLogger(SystemLogAspect.class);
+    private static final Logger logger = LoggerFactory.getLogger(SystemControllerLogAspect.class);
 
 
     //Controller层切点
@@ -30,7 +30,7 @@ public class SystemControllerLogAspect {
      * 指定加了这个注解的类为切入点
      * com.wimoor.common.service.impl.SystemControllerLog 这是自定义注解的全限定名
      */
-    @Pointcut("@annotation(com.wimoor.common.service.impl.SystemControllerLog)")
+    @Pointcut("@annotation(com.kyrie.annotation.SystemControllerLog)")
     public void controllerAspect() {
     }
 
@@ -57,6 +57,7 @@ public class SystemControllerLogAspect {
                 params = joinPoint.getArgs()[0].toString();
             }
         }
+
         IOperationLogService operationLogService;
 
         try {
